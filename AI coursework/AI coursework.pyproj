@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>59f9908c-7300-4970-bb0b-c6316822c000</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>digitrecognitionaccuracychange.py</StartupFile>
+    <StartupFile>decisiontree.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
