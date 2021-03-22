@@ -1,3 +1,3 @@
 import csv
 
-def get_data()->
+def get_data()->list:
