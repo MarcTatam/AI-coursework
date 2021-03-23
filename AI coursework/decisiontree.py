@@ -26,9 +26,17 @@ class DecisionTree():
     def __init__(self, root:Attribute):
         self.root = root
 
-def get_mode(examples:list)->str:
+def get_mode(data:list)->str:
+    """Gets modal value from list
+
+    Args
+    data - data to get mode from
+
+    Returns
+    modal value string"""
+    
     classifications_list = []
-    for item in examples:
+    for item in data:
         classification_list.append(item[21])
     counted_classifications = Counter(classification_list)
     return counted_classifications.most_common(1)[0][0]
@@ -127,9 +135,55 @@ def setup_attributes()->list:
     Returns
     A list of all the attributes to use in the decision tree"""
     R_intersections  = Attribute(0, "greater than")
-    R_
+    R_diversity = Attribute(0,"greater than")
+    R_total = Attribute(0,"greater than")
+    B_diversity = Attribute(0,"greater than")
+    B_total = Attribute(0,"greater than")
+    LU_mix = Attribute(0,"greater than")
+    TP_crossing = Attribute(0,"greater than")
+    pois_park = Attribute(0,"greater than")
+    pois_pitch = Attribute(0,"greater than")
+    pois_diversity = Attribute(0,"greater than")
+    pois_total = Attribute(0,"greater than")
+    TP_oa_count = Attribute(0,"greater than")
+    TP_edt_count = Attribute(0,"greater than")
+    TP_out_count = Attribute(0,"greater than")
+    TP_cv_count = Attribute(0,"greater than")
+    TP_diverstiy = Attribute(0,"greater than")
+    TP_total = Attribute(0,"greater than")
+    V_density = Attribute(0,"greater than")
+    B_age = Attribute(0,"greater than")
+    B_age_diversity = Attribute(0,"greater than")
+
+    R_intersections.index = 1
+    R_diversity.index = 2
+    R_total.index = 3
+    B_diversity.index = 4
+    B_total.index = 5
+    LU_mix.index = 6
+    TP_crossing.index = 7
+    pois_park.index = 8
+    pois_pitch.index = 9
+    pois_diversity.index = 10
+    pois_total.index = 11
+    TP_oa_count.index = 12
+    TP_edt_count.index = 13
+    TP_out_count.index = 14
+    TP_cv_count.index = 15
+    TP_diverstiy.index = 16
+    TP_total.index = 17
+    V_density.index = 18
+    B_age.index = 19
+    B_age_diversity.index = 20
+
+    return_list =[R_intersections, R_diversity, R_total, B_diversity, B_total,
+                  LU_mix, TP_crossing, pois_park, pois_pitch, pois_diversity,pois_total,
+                  TP_oa_count, TP_edt_count, TP_out_count, TP_cv_count,
+                  TP_diverstiy, TP_total, V_density, B_age, B_age_diversity]
+    return return_list
 
 
 if __name__ == "__main__":
     print(entropy_calculation(["b","b","b","b","b","g","g","g","g","g"]))
     print(calculate_ig(["b","b","b","b","b","g","g","g","g","g"],["b","g","g","g","g","g"],["b","b","b","b"]))
+    setup_attributes()
