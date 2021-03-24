@@ -1,6 +1,7 @@
 from decisiontreedata import get_tree_data, sort_data
 from collections import Counter
 from math import log2
+import matplotlib.pyplot as plt
 class Attribute():
     def __init__(self, value, equailty):
         self.value = value
@@ -99,9 +100,6 @@ def choose_attribute(examples, attributes):
     return attributes[current_best_index]
 
 def DTL(examples:list, attributes:list, default:str)->DecisionTree:
-    print(len(examples))
-    print(len(attributes))
-    print("\n")
     if len(examples) == 0:
         return default
     classification_uniform = True
@@ -152,6 +150,76 @@ def DTL(examples:list, attributes:list, default:str)->DecisionTree:
         best_attribute.childFalse = get_mode(examples)
     tree = DecisionTree(best_attribute, attributes)
     return tree
+
+def depth_limited_DTL(examples:list, attributes:list, default:str, depth:int)->DecisionTree:
+    if len(examples) == 0:
+        return default
+    classification_uniform = True
+    for item in examples:
+        if item[21] != examples[0][21]:
+            classification_uniform = False
+    if classification_uniform:
+        return examples[0][21]
+    if len(attributes) == 0:
+        return get_mode(examples)
+    if depth == 0:
+        return get_mode(examples)
+    best_attribute = choose_attribute(examples, attributes)
+    passed_examples = []
+    failed_examples = []
+    for item in examples:
+        if best_attribute.passed(item[best_attribute.index]):
+            passed_examples.append(item)
+        else:
+            failed_examples.append(item)
+    attributes_copy = list(attributes)
+    attributes_true = []
+    attributes_false = []
+    temp_index = attributes_copy.index(best_attribute)
+    del attributes_copy[temp_index]
+    for item in attributes_copy:
+        temp_attribute_1 = Attribute(item.value, item.equality)
+        temp_attribute_1.index = item.index
+        temp_attribute_2 = Attribute(item.value, item.equality)
+        temp_attribute_2.index = item.index
+        attributes_true.append(temp_attribute_1)
+        attributes_false.append(temp_attribute_2)
+    true_tree = depth_limited_DTL(passed_examples, attributes_true, get_mode(examples), depth-1)
+    false_tree = depth_limited_DTL(failed_examples, attributes_false, get_mode(examples), depth -1)
+    if isinstance(true_tree, DecisionTree):
+        true_tree.root.parent = best_attribute
+        best_attribute.childTrue = true_tree.root
+    elif true_tree == None:
+        best_attribute.childTrue = get_mode(examples)
+    else:
+        best_attribute.childTrue = true_tree
+    if isinstance(false_tree, DecisionTree):
+        false_tree.root.parent = best_attribute
+        best_attribute.childFalse = false_tree.root
+    elif false_tree == None:
+        best_attribute.childFalse = get_mode(examples)
+    else:
+        best_attribute.childTrue = false_tree
+    if best_attribute.childFalse == None:
+        best_attribute.childFalse = get_mode(examples)
+    tree = DecisionTree(best_attribute, attributes)
+    return tree
+
+def DTL_chart():
+    names = []
+    values = []
+    data = get_tree_data()
+    attributes_list = setup_attributes()
+    for i in range(1,21):
+        count = 0
+        names.append(i)
+        temp_tree = depth_limited_DTL(data, attributes_list, get_mode(data), i)
+        values.append(accuracy_test(temp_tree))
+    plt.plot(names, values)
+    plt.ylabel("Precent Accuracy")
+    plt.xlabel("Recursion Depth")
+    plt.show()
+
 
 def setup_attributes()->list:
     """Function which creates the list of attributes. Created to make code more readable
@@ -225,7 +293,8 @@ def accuracy_test(tree: DecisionTree)->float:
     return correct/len(test_data)
 
 if __name__ == "__main__":
-    training_data = get_tree_data()
-    attributes_list = setup_attributes()
-    tree = DTL(training_data, attributes_list, get_mode(training_data))
-    print(accuracy_test(tree))
+    #training_data = get_tree_data()
+    #attributes_list = setup_attributes()
+    #tree = DTL(training_data, attributes_list, get_mode(training_data))
+    #print(accuracy_test(tree))
+    DTL_chart()
