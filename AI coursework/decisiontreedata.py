@@ -15,6 +15,22 @@ def get_data()->list:
     csvfile.close
     return return_list
 
+def get_tree_data()->list:
+    """Reads data from the csv file
+    
+    Returns
+    list of each row"""
+    return_list = []
+    csvfile = open("data.csv")
+    csvreader = csv.reader(csvfile)
+    return_list = []
+    for line in csvreader:
+        if line[0] != "cell_id":
+            return_list.append(convert_row(line))
+    csvfile.close
+    return return_list
+
+
 def sort_data(data:list)->(list,list,list,list,list,list):
     """Sorts the data into each age category for analysis
 
@@ -91,7 +107,21 @@ def plot_charts(matrix, index_of_data):
     plt.bar(names, values)
     plt.show()
 
+def average_values(matrix):
+    average_list = []
+    for i in range(0,22):
+        temp_value = 0
+        if i == 0 or i == 21:
+            average_list.append("placeholder")
+        else:
+            for j in range(0,6):
+                temp_value += matrix[j][i]
+            average_list.append(temp_value/6)
+    return average_list
+
+
 if __name__ == "__main__":
     data = sort_data(get_data())
     matrix = average_matrix(data)
-    plot_charts(matrix, 20)
+    print(average_values(matrix))
+    #plot_charts(matrix, 20)
