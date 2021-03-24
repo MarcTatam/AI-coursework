@@ -75,7 +75,14 @@ def convert_row(row:list)->list:
     converted.append(row[21])
     return converted
     
-def average_matrix(data):
+def average_matrix(data:list)->list:
+    """Creates a 2D matrix of the average values of each column for each age group
+    
+    Args
+    data - sorted data to convert to matrix
+    
+    Returns
+    2D matrix of average values for each age group"""
     matrix = []
     for i in range(0,6):
         matrix.append([])
@@ -98,7 +105,12 @@ def average_matrix(data):
                 matrix[i].append(temp_list[j-1]/row_count)
     return matrix
 
-def plot_charts(matrix, index_of_data):
+def plot_charts(matrix:list, index_of_data:int):
+    """Plots a bar chart of the average values for a given category
+    
+    Args
+    matrix - average value matrix
+    index_of_data - index of column to plot data for"""
     names = []
     values = []
     for i in range(0,6):
@@ -107,7 +119,14 @@ def plot_charts(matrix, index_of_data):
     plt.bar(names, values)
     plt.show()
 
-def average_values(matrix):
+def average_values(matrix:list)->list:
+    """Gets a list of the average values for each column
+    
+    Args
+    matrix -matrix to get average values for
+    
+    Returns
+    list of average values for each column"""
     average_list = []
     for i in range(0,22):
         temp_value = 0
