@@ -123,5 +123,4 @@ def average_values(matrix):
 if __name__ == "__main__":
     data = sort_data(get_data())
     matrix = average_matrix(data)
-    print(average_values(matrix))
-    #plot_charts(matrix, 20)
+    plot_charts(matrix, 20)

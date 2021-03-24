@@ -3,6 +3,7 @@ from collections import Counter
 from math import log2
 import matplotlib.pyplot as plt
 class Attribute():
+    """Class which represents a attribute"""
     def __init__(self, value, equailty):
         self.value = value
         self.equality = equailty
@@ -12,6 +13,14 @@ class Attribute():
         self.index = 0
 
     def passed(self, other):
+        """Method to check if a datapoint passes this attribute
+        
+        Args
+        self - this object
+        other - datapoint to compare to
+        
+        Returns
+        Boolean of if the datapoint passes or not"""
         if self.equality == "equal to":
             return self.value == float(other)
         if self.equality == "less than":
@@ -21,11 +30,13 @@ class Attribute():
         return False
 
     def __eq__(self, other):
+        """Comparison function"""
         if other == None:
             return False
         return self.value == other.value and self.equality == other.equality
 
 class DecisionTree():
+    """Class to represent the decision tree"""
     def __init__(self, root:Attribute, nodes:list):
         self.root = root
         self.nodes = nodes
@@ -79,6 +90,14 @@ def calculate_ig(start_list:list, true_list:list, false_list:list)->float:
     return ig
 
 def choose_attribute(examples, attributes):
+    """Chooses the best attribute from a list
+    
+    Args
+    examples - training data
+    attributes - attributes list to select best from
+    
+    Returns
+    attribute which is the best attribute from the list"""
     current_best_ig = 0
     current_best_index = 0
     current_for_entropy = []
@@ -100,17 +119,31 @@ def choose_attribute(examples, attributes):
     return attributes[current_best_index]
 
 def DTL(examples:list, attributes:list, default:str)->DecisionTree:
+    """Produces the decision tree for a set of attributes and a set of training data
+    
+    Args
+    examples - training data
+    attributes - list of attributes for the decision tree
+    default - default value to assign to a data point
+    
+    Returns
+    decision tree for the data or a classification"""
+    #Check there is still training data left
     if len(examples) == 0:
         return default
+    #Check that classifications are not uniform
     classification_uniform = True
     for item in examples:
         if item[21] != examples[0][21]:
             classification_uniform = False
     if classification_uniform:
         return examples[0][21]
+    #Check if there are attributes to select
     if len(attributes) == 0:
         return get_mode(examples)
+    #choose best attribute
     best_attribute = choose_attribute(examples, attributes)
+    #sort into passed data and failed data lists
     passed_examples = []
     failed_examples = []
     for item in examples:
@@ -118,6 +151,7 @@ def DTL(examples:list, attributes:list, default:str)->DecisionTree:
             passed_examples.append(item)
         else:
             failed_examples.append(item)
+    #make copies of attributes due to them being passed by reference in python
     attributes_copy = list(attributes)
     attributes_true = []
     attributes_false = []
@@ -130,8 +164,10 @@ def DTL(examples:list, attributes:list, default:str)->DecisionTree:
         temp_attribute_2.index = item.index
         attributes_true.append(temp_attribute_1)
         attributes_false.append(temp_attribute_2)
+    #Get sub trees
     true_tree = DTL(passed_examples, attributes_true, get_mode(examples))
     false_tree = DTL(failed_examples, attributes_false, get_mode(examples))
+    #Check whether sub trees are trees or strings
     if isinstance(true_tree, DecisionTree):
         true_tree.root.parent = best_attribute
         best_attribute.childTrue = true_tree.root
@@ -146,25 +182,42 @@ def DTL(examples:list, attributes:list, default:str)->DecisionTree:
         best_attribute.childFalse = get_mode(examples)
     else:
         best_attribute.childTrue = false_tree
+    #Catch if false somehow gets assigned a none value
     if best_attribute.childFalse == None:
         best_attribute.childFalse = get_mode(examples)
     tree = DecisionTree(best_attribute, attributes)
     return tree
 
 def depth_limited_DTL(examples:list, attributes:list, default:str, depth:int)->DecisionTree:
+    """Produces a decision tree with a limit on the tree depth
+    
+    Args
+    examples - training data
+    attributes - list of attributes for the decision tree
+    default - default value to assign to a data point
+    depth - depth limit of the tree
+    
+    Returns
+    decision tree for the data or a classification"""
+    #Check there is still training data left
     if len(examples) == 0:
         return default
+    #Check that classifications are not uniform
     classification_uniform = True
     for item in examples:
         if item[21] != examples[0][21]:
             classification_uniform = False
     if classification_uniform:
         return examples[0][21]
+    #Check if there are attributes to select
     if len(attributes) == 0:
         return get_mode(examples)
+    #Check depth limit has not been reached
     if depth == 0:
         return get_mode(examples)
+    #choose best attribute
     best_attribute = choose_attribute(examples, attributes)
+    #sort into passed data and failed data lists
     passed_examples = []
     failed_examples = []
     for item in examples:
@@ -172,6 +225,7 @@ def depth_limited_DTL(examples:list, attributes:list, default:str, depth:int)->D
             passed_examples.append(item)
         else:
             failed_examples.append(item)
+    #make copies of attributes due to them being passed by reference in python
     attributes_copy = list(attributes)
     attributes_true = []
     attributes_false = []
@@ -184,6 +238,7 @@ def depth_limited_DTL(examples:list, attributes:list, default:str, depth:int)->D
         temp_attribute_2.index = item.index
         attributes_true.append(temp_attribute_1)
         attributes_false.append(temp_attribute_2)
+    #Get subtrees
     true_tree = depth_limited_DTL(passed_examples, attributes_true, get_mode(examples), depth-1)
     false_tree = depth_limited_DTL(failed_examples, attributes_false, get_mode(examples), depth -1)
     if isinstance(true_tree, DecisionTree):
@@ -193,6 +248,7 @@ def depth_limited_DTL(examples:list, attributes:list, default:str, depth:int)->D
         best_attribute.childTrue = get_mode(examples)
     else:
         best_attribute.childTrue = true_tree
+    #Check whether sub trees are trees or strings
     if isinstance(false_tree, DecisionTree):
         false_tree.root.parent = best_attribute
         best_attribute.childFalse = false_tree.root
@@ -200,12 +256,14 @@ def depth_limited_DTL(examples:list, attributes:list, default:str, depth:int)->D
         best_attribute.childFalse = get_mode(examples)
     else:
         best_attribute.childTrue = false_tree
+    #Catch if false somehow gets assigned a none value
     if best_attribute.childFalse == None:
         best_attribute.childFalse = get_mode(examples)
     tree = DecisionTree(best_attribute, attributes)
     return tree
 
 def DTL_chart():
+    """Function to plot a chart of accuracy against decision tree depth"""
     names = []
     values = []
     data = get_tree_data()
@@ -226,6 +284,7 @@ def setup_attributes()->list:
     
     Returns
     A list of all the attributes to use in the decision tree"""
+    #Give each attribute its average
     R_intersections  = Attribute(3.7845574768348187, "greater than")
     R_diversity = Attribute(1.318174459765588,"greater than")
     R_total = Attribute(5.983660185122511,"greater than")
@@ -247,6 +306,7 @@ def setup_attributes()->list:
     B_age = Attribute(52.712325278083874,"greater than")
     B_age_diversity = Attribute(1.382932767676439,"greater than")
 
+    #give each attribute its column index
     R_intersections.index = 1
     R_diversity.index = 2
     R_total.index = 3
@@ -275,6 +335,13 @@ def setup_attributes()->list:
     return return_list
 
 def accuracy_test(tree: DecisionTree)->float:
+    """Calculates the accuracy percentage
+    
+    Args
+    tree - decision tree to calculate accuracy for
+    
+    Returns
+    float representing percentage accuracy"""
     test_data = get_tree_data()
     root = tree.root
     correct = 0
@@ -296,5 +363,4 @@ if __name__ == "__main__":
     #training_data = get_tree_data()
     #attributes_list = setup_attributes()
     #tree = DTL(training_data, attributes_list, get_mode(training_data))
-    #print(accuracy_test(tree))
     DTL_chart()
